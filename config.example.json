@@ -1,0 +1,6 @@
+{
+  "workspace": "~/orchestrator-projects",
+  "port": 4321,
+  "claudeBin": "claude",
+  "stepTimeoutMin": 45
+}

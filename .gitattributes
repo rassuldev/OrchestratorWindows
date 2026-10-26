@@ -1,0 +1,5 @@
+* text=auto
+# Run by Git Bash: must keep LF even with core.autocrlf=true.
+bin/orch-shot text eol=lf
+*.sh text eol=lf
+*.cmd text eol=crlf

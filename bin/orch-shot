@@ -1,0 +1,5 @@
+#!/bin/sh
+# Agent tool wrapper for Git Bash (Claude Code's Bash tool on Windows). Works from any cwd: resolves
+# our repo from this script's own location; `pwd -W` gives the Windows form (C:/...) that node.exe needs.
+ROOT=$(cd "$(dirname "$0")/.." && (pwd -W 2>/dev/null || pwd))
+exec node "$ROOT/node_modules/tsx/dist/cli.mjs" "$ROOT/src/tools/screenshot.ts" "$@"
