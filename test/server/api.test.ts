@@ -263,6 +263,8 @@ describe('docs', () => {
     expect(spec.headers['content-type']).toContain('text/markdown')
     expect(spec.body).toBe('# Spec\n')
     expect((await inject({ url: `/api/projects/${id}/doc/readme` })).body).toBe('# Readme\n')
+    await writeFile(projectPaths(dir).followups, '- [ ] note\n')
+    expect((await inject({ url: `/api/projects/${id}/doc/followups` })).body).toBe('- [ ] note\n')
     expect((await inject({ url: `/api/projects/${id}/doc/task` })).body).toBe('Make a small CLI tool')
     expect((await inject({ url: `/api/projects/${id}/doc/report` })).statusCode).toBe(404) // not written yet
     expect((await inject({ url: `/api/projects/${id}/doc/state` })).statusCode).toBe(404)

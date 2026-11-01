@@ -14,7 +14,7 @@ import type { DisplayStatus } from '../../src/server/routes.js'
 
 export type { Checkpoint, DesignOptions, DisplayStatus, LogEntry, Phase, Plan, ProjectState, Questions, StepRecord, Task, UserInput }
 
-export type DocName = 'task' | 'spec' | 'architecture' | 'decisions' | 'report' | 'readme'
+export type DocName = 'task' | 'spec' | 'architecture' | 'decisions' | 'followups' | 'report' | 'readme'
 export type AppStatus = { running: boolean; url: string | null }
 export type ProjectSummary = { id: string; name: string; phase: Phase; displayStatus: DisplayStatus; updatedAt: string }
 export type ProjectDetails = {

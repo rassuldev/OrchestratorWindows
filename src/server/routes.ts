@@ -35,7 +35,7 @@ const NewProjectSchema = z.object({
   sourceRepo: z.string().trim().min(1).optional(),
 })
 
-const DOCS = ['task', 'spec', 'architecture', 'decisions', 'report', 'readme'] as const
+const DOCS = ['task', 'spec', 'architecture', 'decisions', 'followups', 'report', 'readme'] as const
 type DocName = (typeof DOCS)[number]
 
 const CONTENT_TYPES: Record<string, string> = {

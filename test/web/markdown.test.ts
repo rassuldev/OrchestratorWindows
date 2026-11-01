@@ -41,4 +41,10 @@ describe('renderMarkdown', () => {
       expect(href(good), good).toBe(good)
     }
   })
+  it('renders checklist items as boxes, done ones marked, without breaking plain items', () => {
+    expect(renderMarkdown('- [ ] open <b>\n- [x] fixed\n- plain')).toBe(
+      '<ul><li class="task"><span class="task-box" aria-label="не сделано">☐</span> open &lt;b&gt;</li>' +
+        '<li class="task done"><span class="task-box" aria-label="сделано">☑</span> fixed</li><li>plain</li></ul>',
+    )
+  })
 })

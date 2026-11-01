@@ -1679,6 +1679,23 @@ details.log-text summary::-webkit-details-marker {
   margin: 0.2em 0 0;
 }
 
+.md li.task {
+  list-style: none;
+  margin-left: -1.2em;
+}
+
+.md .task-box {
+  color: var(--accent-ink);
+}
+
+.md li.task.done {
+  color: var(--muted);
+}
+
+.md li.task.done .task-box {
+  color: var(--green);
+}
+
 .md code {
   padding: 1px 4px;
   border-radius: 4px;

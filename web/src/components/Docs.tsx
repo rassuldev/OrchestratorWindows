@@ -133,7 +133,7 @@ export function useDoc(load: () => Promise<string | null>, version: unknown): { 
   return result
 }
 
-type TabId = 'task' | 'spec' | 'architecture' | 'plan' | 'decisions' | 'screenshots' | 'report'
+type TabId = 'task' | 'spec' | 'architecture' | 'plan' | 'decisions' | 'followups' | 'screenshots' | 'report'
 
 const TABS: { id: TabId; label: string; empty: string }[] = [
   { id: 'task', label: 'Задача', empty: 'Описание задачи не найдено.' },
@@ -141,6 +141,11 @@ const TABS: { id: TabId; label: string; empty: string }[] = [
   { id: 'architecture', label: 'Архитектура', empty: 'Архитектуру опишет архитектор после одобрения спецификации.' },
   { id: 'plan', label: 'План', empty: 'План появится после одобрения спецификации.' },
   { id: 'decisions', label: 'Решения', empty: 'Сюда агенты записывают решения, принятые без вас. Пока их нет.' },
+  {
+    id: 'followups',
+    label: 'Замечания',
+    empty: 'Сюда попадают не блокирующие замечания проверяющих. Пока их нет.',
+  },
   {
     id: 'screenshots',
     label: 'Скриншоты',

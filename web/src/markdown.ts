@@ -1,5 +1,5 @@
 // A deliberately small Markdown renderer for the documents agents write (spec, architecture,
-// decisions, report): headings, paragraphs, lists (nested), fenced code, quotes, rules, tables,
+// decisions, followups, report): headings, paragraphs, lists (nested), fenced code, quotes, rules, tables,
 // bold, italic, inline code and links. Everything is HTML-escaped; only safe link targets survive.
 
 const ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }
@@ -53,6 +53,8 @@ const RULE = /^\s*([-*_])(\s*\1){2,}\s*$/
 const TABLE_SEPARATOR = /^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|?\s*$/
 
 type ListItem = { indent: number; ordered: boolean; text: string }
+/** GitHub-style checklist item: `[ ] text` / `[x] text`. */
+const TASK_ITEM = /^\[([ xX])\]\s+(.*)$/
 
 function renderList(items: ListItem[]): string {
   const tag = items[0]!.ordered ? 'ol' : 'ul'
@@ -63,7 +65,11 @@ function renderList(items: ListItem[]): string {
     let j = i + 1
     while (j < items.length && items[j]!.indent > base) j++
     const children = items.slice(i + 1, j)
-    html += `<li>${renderInline(item.text)}${children.length ? renderList(children) : ''}</li>`
+    const task = TASK_ITEM.exec(item.text)
+    const body = task
+      ? `<span class="task-box" aria-label="${task[1] === ' ' ? 'не сделано' : 'сделано'}">${task[1] === ' ' ? '☐' : '☑'}</span> ${renderInline(task[2]!)}`
+      : renderInline(item.text)
+    html += `<li${task ? ` class="task${task[1] === ' ' ? '' : ' done'}"` : ''}>${body}${children.length ? renderList(children) : ''}</li>`
     i = j
   }
   return `${html}</${tag}>`
