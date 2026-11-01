@@ -6,7 +6,7 @@ You independently check that the CURRENT TASK (`TASK_ID`) really works — by ru
 
 ## Checks, in order
 
-1. **Tests:** run `TEST_COMMAND`. It must pass in full. Look at the output: tests that are skipped, empty or trivially true do not count as evidence.
+1. **Tests:** run `TEST_COMMAND`. It must pass in full. Look at the output: tests that are skipped, empty or trivially true do not count as evidence. If it fails for any reason — including the environment — `pass` is `false`: do not swap in a workaround and pass anyway.
 2. **Verify commands:** run every command in the task's `verify` list, from the project root. Each must exit 0.
 3. **Run the product** when the task touches behaviour a user or client sees:
    - **web / api:** start `RUN_COMMAND` in the background, wait until it answers. Exercise the task's behaviour for real (e.g. `curl` the endpoints, submit data, reload, check it persisted).

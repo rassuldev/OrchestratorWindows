@@ -4,10 +4,10 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { buildPrompt, slashPath } from '../../src/agents/prompts.js'
-import { projectPaths } from '../../src/core/paths.js'
+import { projectPaths, type ProjectPaths } from '../../src/core/paths.js'
 import { RoleSchema, type Plan, type ProjectState, type Role } from '../../src/core/schemas.js'
 
-const orchestratorRoot = fileURLToPath(new URL('../..', import.meta.url)).replace(/\/$/, '')
+const orchestratorRoot = fileURLToPath(new URL('../..', import.meta.url)).replace(/[\\/]$/, '')
 const BUILD_ROLES: Role[] = ['implementer', 'verifier', 'reviewer']
 
 function state(over: Partial<ProjectState> = {}): ProjectState {
@@ -91,7 +91,7 @@ describe('buildPrompt', () => {
   it('verifier prompt has TASK_ID and VERDICT_FILE for current attempt', async () => {
     const r = await buildPrompt('verifier', buildCtx())
     expect(r.prompt).toContain('TASK_ID: t1')
-    expect(r.verdictFile).toBe(join(projectPaths(dir).verdictsDir, 't1-a2-verify.json'))
+    expect(r.verdictFile).toBe(slashPath(join(projectPaths(dir).verdictsDir, 't1-a2-verify.json')))
     expect(r.prompt).toContain(`VERDICT_FILE: ${r.verdictFile}`)
   })
 
@@ -106,7 +106,7 @@ describe('buildPrompt', () => {
     const r = await buildPrompt('reviewer', buildCtx({ taskIndex: 1, attempt: 1 }))
     expect(r.prompt).toContain('TASK_ID: t2')
     expect(r.prompt).toContain('BASE_COMMIT: abc1234')
-    expect(r.verdictFile).toBe(join(projectPaths(dir).verdictsDir, 't2-a1-review.json'))
+    expect(r.verdictFile).toBe(slashPath(join(projectPaths(dir).verdictsDir, 't2-a1-review.json')))
     expect(r.prompt).toContain(`VERDICT_FILE: ${r.verdictFile}`)
   })
 
@@ -154,7 +154,7 @@ describe('buildPrompt', () => {
   })
 
   it('lists absolute paths of the .orchestrator files the role uses', async () => {
-    const p = projectPaths(dir)
+    const p = Object.fromEntries(Object.entries(projectPaths(dir)).map(([k, v]) => [k, slashPath(v)])) as unknown as ProjectPaths
     const architect = (await buildPrompt('architect', ctx())).prompt
     for (const f of [p.task, p.spec, p.decisions, p.architecture, p.plan]) expect(architect).toContain(f)
     const questions = (await buildPrompt('analyst_questions', ctx())).prompt
@@ -170,7 +170,7 @@ describe('buildPrompt', () => {
   it('gives the tool commands with absolute paths to the roles that take screenshots', async () => {
     for (const r of ['designer', 'verifier'] as Role[]) {
       const { prompt } = await buildPrompt(r, ctxFor(r))
-      expect(prompt).toContain(`${orchestratorRoot}/bin/orch-shot <url> <outDir>`)
+      expect(prompt).toContain(`${slashPath(orchestratorRoot)}/bin/orch-shot <url> <outDir>`)
       expect(prompt).not.toContain('orch-sim')
     }
   })
@@ -212,7 +212,7 @@ describe('buildPrompt', () => {
 
   it('verifier gets a per-attempt screenshots directory', async () => {
     const { prompt } = await buildPrompt('verifier', buildCtx())
-    expect(prompt).toContain(join(projectPaths(dir).screenshotsDir, 't1-a2'))
+    expect(prompt).toContain(slashPath(join(projectPaths(dir).screenshotsDir, 't1-a2')))
   })
 
   it('implementer, verifier and reviewer get the chosen design HTML file from options.json', async () => {

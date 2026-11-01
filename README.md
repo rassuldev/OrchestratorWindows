@@ -44,6 +44,8 @@ intake → analyst: вопросы → A → analyst: spec → B → architect: 
 
 В цикле на каждую задачу: `implementer` → `verifier` → `reviewer`. При провале шаг возвращается к implementer с замечаниями (до 3 попыток на задачу, на остальных шагах до 2).
 
+- **Не блокирующие замечания не теряются.** verifier и reviewer пишут их в поле `notes` вердикта, оркестратор дописывает их в `.orchestrator/followups.md` чек-листом. Следующие implementer'ы исправляют то, что касается их задачи, и отмечают `[x]`; reviewer проваливает задачу, если положенный ей пункт не исправлен, а дефект, который «исправит потом» ни одна задача плана, не считается замечанием. Открытые пункты finalizer переносит в REPORT. В панели они на вкладке «Замечания».
+
 Чекпоинты, где ждут вас (уведомление Windows и бейдж в панели):
 
 - **A — ответы:** форма с вопросами analyst; здесь же поля для секретов (API-ключи).
@@ -78,6 +80,7 @@ git -C C:\path\to\original pull $env:USERPROFILE\orchestrator-projects\<slug> <b
   .orchestrator/         # служебное, в .gitignore проекта
     task.md  questions.json  answers.json  spec.md  architecture.md  plan.json
     decisions.md         # решения агентов с «почему»
+    followups.md         # не блокирующие замечания проверяющих, чек-лист
     state.json           # состояние пайплайна (атомарная запись после каждого перехода)
     design/  logs/<step>.jsonl  screenshots/  verdicts/
 ```

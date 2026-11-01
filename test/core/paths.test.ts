@@ -14,6 +14,7 @@ it('lays out service files under .orchestrator and docs in the project root', ()
     architecture: '/w/app/.orchestrator/architecture.md',
     plan: '/w/app/.orchestrator/plan.json',
     decisions: '/w/app/.orchestrator/decisions.md',
+    followups: '/w/app/.orchestrator/followups.md',
     designDir: '/w/app/.orchestrator/design',
     designOptions: '/w/app/.orchestrator/design/options.json',
     logsDir: '/w/app/.orchestrator/logs',
