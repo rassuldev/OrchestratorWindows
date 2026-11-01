@@ -1,5 +1,5 @@
-import { appendFileSync } from 'node:fs'
-import { rm, writeFile } from 'node:fs/promises'
+import { appendFileSync, existsSync } from 'node:fs'
+import { appendFile, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import type { Config } from '../config.js'
 import { buildPrompt } from '../agents/prompts.js'
@@ -9,7 +9,7 @@ import type { EventBus } from './events.js'
 import { commitAll, headCommit, revertUncommitted } from './git.js'
 import { validateOutputs } from './outputs.js'
 import { projectPaths } from './paths.js'
-import { DesignOptionsSchema, type Plan, type ProjectState, type Role, type StepRecord, type Task, type UserInput } from './schemas.js'
+import { DesignOptionsSchema, type Plan, type Verdict, type ProjectState, type Role, type StepRecord, type Task, type UserInput } from './schemas.js'
 import { assertEnvKeys, maskSecrets, readSecretValues, writeEnv } from './secrets.js'
 import { SUBSTEP_ROLE, applyStepOutcome, applyUserInput, flattenTasks, nextAction, type StepOutcome } from './stateMachine.js'
 import { loadPlanSafe, loadState, readJson, savePlan, saveState } from './store.js'
@@ -26,6 +26,8 @@ const AUTH_ERROR =
   'Claude CLI не авторизован: запустите `claude` в терминале и выполните /login, затем нажмите «Продолжить».'
 const LIMIT_BACKOFF_MIN = [10, 20, 40, 60]
 const NO_CHANGES = 'No changes were made to the project'
+const FOLLOWUPS_HEADER =
+  '# Замечания проверяющих\n\nНе блокирующие замечания верификатора и ревьюера. Исполнитель отмечает исправленные `[x]`, финализатор переносит открытые в REPORT.\n'
 const NOTIFY_TITLE = 'Orchestrator'
 
 const ROLE_LABELS: Record<Role, string> = {
@@ -75,6 +77,23 @@ async function rejectCheckerEdits(dir: string, role: 'verifier' | 'reviewer', ou
 }
 
 /** Drives one project's agent steps until it needs the user, hits a limit, fails hard, or finishes. */
+/** Non-blocking findings of a passing verdict; `issues` on a pass are notes too (the pre-`notes` contract). */
+export function verdictNotes(v: Verdict): string[] {
+  return [...(v.notes ?? []), ...(v.pass ? v.issues : [])].map((n) => n.trim()).filter((n) => n !== '')
+}
+
+/**
+ * Appends a checker's notes to followups.md as open checklist items. The orchestrator writes it, not the agent,
+ * so nothing a checker found gets lost; implementers close the items they fix and the finalizer reports the rest.
+ */
+async function appendFollowups(dir: string, heading: string, notes: string[]): Promise<void> {
+  if (notes.length === 0) return
+  const file = projectPaths(dir).followups
+  const start = existsSync(file) ? '' : FOLLOWUPS_HEADER
+  const items = notes.map((n) => `- [ ] ${n.replace(/\s*\n\s*/g, ' ')}`).join('\n')
+  await appendFile(file, `${start}\n## ${heading}\n\n${items}\n`)
+}
+
 export class ProjectRunner {
   private readonly run: typeof runClaude
   private readonly notify: (title: string, msg: string) => void
@@ -243,6 +262,9 @@ export class ProjectRunner {
     else if (result.classified.kind === 'error') outcome = { ok: false, error: result.classified.message }
     else outcome = await validateOutputs(role, dir, built!.verdictFile)
     if (role === 'verifier' || role === 'reviewer') outcome = await rejectCheckerEdits(dir, role, outcome)
+    if (outcome.ok && outcome.verdict?.pass && task) {
+      await appendFollowups(dir, `${task.id} · ${ROLE_LABELS[role]} (попытка ${s.attempt})`, verdictNotes(outcome.verdict).map(mask))
+    }
     if (outcome.ok && role === 'implementer') {
       if (!task) throw new Error('implementer step has no task')
       const message = `task-${task.id}: ${task.title} (attempt ${s.attempt})`

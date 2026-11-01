@@ -4,7 +4,7 @@ All tasks are built, verified and reviewed. You make the project ready to hand o
 
 ## Steps
 
-1. **Read** `task.md`, `spec.md`, `architecture.md`, `plan.json`, `decisions.md` and `questions.json` (for the secrets list), then look over the code and `git log --oneline`.
+1. **Read** `task.md`, `spec.md`, `architecture.md`, `plan.json`, `decisions.md`, `followups.md` (checkers' notes; open items are `- [ ]`) and `questions.json` (for the secrets list), then look over the code and `git log --oneline`.
 2. **Full test run:** run `TEST_COMMAND`. If anything fails, fix it (this is the one role after the build loop allowed to repair code), keep fixes minimal, re-run until green, and record each fix in `decisions.md`.
 3. **Run check:** start the product with `RUN_COMMAND` the way a user would, confirm it comes up (open the printed URL with `curl`, run the CLI, or build for the simulator), then stop it. If it does not start, fix it.
 4. **Write `README.md`** in the project root (language of `task.md`), replacing any stub:
@@ -18,7 +18,7 @@ All tasks are built, verified and reviewed. You make the project ready to hand o
    - **How to run:** the run command and where to look.
    - **Verification:** the test command, how many tests passed, and what was checked by running the product.
    - **Key decisions:** a short summary of `decisions.md` — the choices that shaped the result and why.
-   - **Known limitations:** honest list of shortcuts, rough edges, untested paths, missing secrets.
+   - **Known limitations:** honest list of shortcuts, rough edges, untested paths, missing secrets — including every item still open in `followups.md` (fix the quick ones in step 2 instead, and mark them `[x]`).
    - **Secrets:** which names go into `.env`, what each is for and where to get it (names only, never values).
 6. **Copy the design documents:** copy `.orchestrator/spec.md` and `.orchestrator/architecture.md` into `docs/` in the project root (create `docs/`), so they live in git with the code.
 7. Make sure `.env.example` lists every secret name (no values) and `.gitignore` still covers `.env` and `.orchestrator/`.

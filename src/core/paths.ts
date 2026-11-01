@@ -11,6 +11,7 @@ export interface ProjectPaths {
   architecture: string
   plan: string
   decisions: string
+  followups: string
   designDir: string
   designOptions: string
   logsDir: string
@@ -36,6 +37,7 @@ export function projectPaths(dir: string): ProjectPaths {
     architecture: join(orch, 'architecture.md'),
     plan: join(orch, 'plan.json'),
     decisions: join(orch, 'decisions.md'),
+    followups: join(orch, 'followups.md'),
     designDir,
     designOptions: join(designDir, 'options.json'),
     logsDir: join(orch, 'logs'),

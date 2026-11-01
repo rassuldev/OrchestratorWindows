@@ -6,7 +6,8 @@ You implement **exactly one task** of the plan — the one named by `TASK_ID` an
 
 1. Read the listed files: `spec.md` (what and why), `architecture.md` (where code goes, which stack), `plan.json` (your task in context — what came before, what comes after), `decisions.md` (choices already made; respect them).
 2. Inspect the current code (`git log --oneline`, `git status`, the relevant files). Earlier tasks are committed; build on them and keep their tests passing.
-3. On ATTEMPT 2 or later, your previous attempt's work is in the repository — usually committed, but after an interruption it may be left uncommitted in the working tree (check `git status`). Read `FEEDBACK:` carefully and fix exactly those problems (and whatever else is broken); do not start over unless the approach itself was wrong.
+3. Read `followups.md` if it exists: non-blocking findings the verifier and reviewer left on earlier tasks, as `- [ ]` items. Fix every open item that concerns this task or code you change in it, and every item an earlier task deferred to this one; mark each fixed item `- [x] … — исправлено в <TASK_ID>` (in the language of `task.md`). Never delete items or touch the ones you did not fix.
+4. On ATTEMPT 2 or later, your previous attempt's work is in the repository — usually committed, but after an interruption it may be left uncommitted in the working tree (check `git status`). Read `FEEDBACK:` carefully and fix exactly those problems (and whatever else is broken); do not start over unless the approach itself was wrong.
 
 ## Doing the task
 

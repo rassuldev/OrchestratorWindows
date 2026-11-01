@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Fake `claude -p` CLI for tests. Behavior is driven by env vars (FAKE_CLAUDE_SCRIPT, FAKE_PLAN, FAKE_ARGV_FILE, FAKE_ECHO_ENV,
+// Fake `claude -p` CLI for tests. Behavior is driven by env vars (FAKE_CLAUDE_SCRIPT, FAKE_PLAN, FAKE_ARGV_FILE, FAKE_ECHO_ENV, FAKE_NOTES,
 // FAKE_CHILD_PID_FILE for the 'hang_child'/'ok_child' behaviors).
 import { spawn } from 'node:child_process'
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
@@ -82,7 +82,8 @@ function writeOutputs(pass) {
     case 'verifier':
     case 'reviewer': {
       const verdictFile = line('VERDICT_FILE')
-      if (verdictFile) write(verdictFile, JSON.stringify({ pass, issues: pass ? [] : ['fake issue'] }))
+      const notes = process.env.FAKE_NOTES ? [`${role} note: ${process.env.FAKE_NOTES}`] : undefined
+      if (verdictFile) write(verdictFile, JSON.stringify({ pass, issues: pass ? [] : ['fake issue'], notes }))
       break
     }
     case 'finalizer':

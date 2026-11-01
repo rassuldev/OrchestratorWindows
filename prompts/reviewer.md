@@ -21,14 +21,19 @@ You review the code change for the CURRENT TASK (`TASK_ID`): everything committe
 
 Fail **only for real defects**: bugs, missing or faked acceptance criteria, missing or meaningless tests, broken or contradictory structure, security problems. Do **not** fail for style, naming, formatting, or "I would have done it differently"; mention those as notes at most. A small amount of imperfection is fine; a defect is not.
 
+A defect does not become a note because "a later task can fix it". It may be deferred only when a specific later task in `plan.json` clearly covers it: then put it in `notes` naming that task (e.g. "… — исправить в t23"). A defect no later task covers fails the review, however small the fix.
+
+`followups.md` lists notes from earlier tasks. If this task was supposed to fix an open item there (it concerns this task's code, or an earlier note deferred it to this task) and did not, that is a defect.
+
 ## Verdict: write `VERDICT_FILE`
 
 Exactly this shape:
 
 ```json
-{ "pass": false, "issues": ["src/api/todos.ts:42 — deleting a missing id returns 500 instead of 404; add a not-found check and a test for it"] }
+{ "pass": false, "issues": ["src/api/todos.ts:42 — deleting a missing id returns 500 instead of 404; add a not-found check and a test for it"], "notes": [] }
 ```
 
 - `pass`: `true` when there are no real defects.
-- `issues`: when failing, one entry per defect: `file:line` (or area), what is wrong, why it matters, and a concrete fix. When passing, optional short non-blocking notes.
+- `issues`: one entry per defect: `file:line` (or area), what is wrong, why it matters, and a concrete fix. Empty when passing.
+- `notes`: short non-blocking findings, each with `file:line` or area. The orchestrator adds them to `followups.md`, where later implementers fix them and the finalizer reports what is left — so write each one so it can be acted on later without this review at hand.
 - Write the issues in the language of `task.md`.

@@ -48,12 +48,12 @@ const FILES: Record<Role, { read: FileRef[]; write: FileRef[] }> = {
     read: ['task', 'spec', 'architecture', 'plan', 'designOptions', 'decisions'],
     write: ['designDir', 'designOptions', 'decisions'],
   },
-  implementer: { read: ['task', 'spec', 'architecture', 'plan', 'decisions'], write: ['decisions'] },
+  implementer: { read: ['task', 'spec', 'architecture', 'plan', 'decisions', 'followups'], write: ['decisions', 'followups'] },
   verifier: { read: ['task', 'spec', 'architecture', 'plan', 'decisions'], write: ['decisions'] },
-  reviewer: { read: ['task', 'spec', 'architecture', 'plan', 'decisions'], write: ['decisions'] },
+  reviewer: { read: ['task', 'spec', 'architecture', 'plan', 'decisions', 'followups'], write: ['decisions'] },
   finalizer: {
-    read: ['task', 'questions', 'spec', 'architecture', 'plan', 'decisions'],
-    write: ['readme', 'report', { rel: 'docs/' }, { rel: '.env.example' }, 'decisions'],
+    read: ['task', 'questions', 'spec', 'architecture', 'plan', 'decisions', 'followups'],
+    write: ['readme', 'report', { rel: 'docs/' }, { rel: '.env.example' }, 'decisions', 'followups'],
   },
 }
 

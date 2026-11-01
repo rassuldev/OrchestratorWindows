@@ -22,11 +22,12 @@ You independently check that the CURRENT TASK (`TASK_ID`) really works — by ru
 Exactly this shape:
 
 ```json
-{ "pass": true, "issues": [], "screenshots": [".orchestrator/screenshots/t1-a1/home/desktop.png", ".orchestrator/screenshots/t1-a1/home/mobile.png"] }
+{ "pass": true, "issues": [], "notes": [], "screenshots": [".orchestrator/screenshots/t1-a1/home/desktop.png", ".orchestrator/screenshots/t1-a1/home/mobile.png"] }
 ```
 
 - `pass`: `true` only if the tests pass, every verify command exits 0, the product runs (where applicable) and every acceptance item holds. Otherwise `false`.
-- `issues`: when failing, one entry per problem, each actionable: what is wrong, where (command, URL, file, screen), how to reproduce, expected vs actual, and the relevant output excerpt. When passing, `issues` may hold short non-blocking notes, or be empty.
+- `issues`: one entry per problem, each actionable: what is wrong, where (command, URL, file, screen), how to reproduce, expected vs actual, and the relevant output excerpt. Empty when passing.
+- `notes`: short non-blocking findings (a cosmetic glitch, a check you could only do partly). The orchestrator adds them to `followups.md` for later implementers and the finalizer's report. A failed or skipped `TEST_COMMAND` is never a note.
 - `screenshots`: paths of the screenshots you took, relative to the project root, e.g. `.orchestrator/screenshots/t1-a1/home/desktop.png` (omit or `[]` if none).
 - Write the issues in the language of `task.md`.
 

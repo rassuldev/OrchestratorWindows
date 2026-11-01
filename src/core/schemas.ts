@@ -101,6 +101,8 @@ export type Plan = z.infer<typeof PlanSchema>
 export const VerdictSchema = z.object({
   pass: z.boolean(),
   issues: z.array(z.string()),
+  /** non-blocking findings; the orchestrator collects them into followups.md for later steps */
+  notes: z.array(z.string()).optional(),
   screenshots: z.array(z.string()).optional(),
 })
 export type Verdict = z.infer<typeof VerdictSchema>

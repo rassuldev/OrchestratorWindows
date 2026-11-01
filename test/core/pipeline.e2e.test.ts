@@ -5,11 +5,12 @@ import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import type { Config } from '../../src/config.js'
 import { runClaude } from '../../src/agents/runClaude.js'
+import { slashPath } from '../../src/agents/prompts.js'
 import { appRunner, stopAll } from '../../src/core/appRunner.js'
 import { EventBus } from '../../src/core/events.js'
 import { execGit } from '../../src/core/git.js'
 import { projectPaths } from '../../src/core/paths.js'
-import { ProjectRunner, submitInput } from '../../src/core/pipeline.js'
+import { ProjectRunner, submitInput, verdictNotes } from '../../src/core/pipeline.js'
 import type { ProjectState } from '../../src/core/schemas.js'
 import { CheckpointMismatchError } from '../../src/core/stateMachine.js'
 import { createProject, loadState, saveState } from '../../src/core/store.js'
@@ -156,6 +157,27 @@ describe('ProjectRunner', () => {
     const s = await loadState(dir)
     expect(s.checkpoint?.kind).toBe('demo')
     expect(await gitLog(dir)).toMatch(/task-t1: First task \(attempt 2\)/)
+  })
+
+  it('notes of passing verdicts are collected into followups.md and shown to the next implementer', async () => {
+    const dir = await newProject()
+    const r = runner(dir)
+    await toBuild(r, dir)
+    fakeEnv.FAKE_NOTES = 'grass grows through the paths'
+    await script({ verifier: ['fail', 'ok'] })
+    const argv = argvFile()
+    expect(await r.runUntilBlocked()).toBe('waiting') // at demo
+    const followups = await readFile(projectPaths(dir).followups, 'utf8')
+    expect(followups).toMatch(/^# Замечания проверяющих/)
+    expect(followups).toContain('## t1 · проверка (попытка 2)\n\n- [ ] verifier note: grass grows through the paths\n')
+    expect(followups).toContain('## t1 · ревью (попытка 2)\n\n- [ ] reviewer note: grass grows through the paths\n')
+    expect(followups).not.toContain('попытка 1') // a failed verdict's notes are not follow-ups: its issues went back as feedback
+
+    await submitInput(cfg, dir, { kind: 'demo', comments: '' }, bus)
+    await r.runUntilBlocked()
+    const implementerPrompt = (await prompts(argv)).find((p) => p.includes('TASK_ID: t2'))!
+    expect(implementerPrompt).toContain(slashPath(projectPaths(dir).followups))
+    delete fakeEnv.FAKE_NOTES
   })
 
   it('verifier fail loops back to implementer with issues', async () => {
@@ -625,5 +647,12 @@ describe('submitInput', () => {
     await submitInput(cfg, dir, { kind: 'demo', comments: 'Make it blue' }, bus)
     const plan = JSON.parse(await readFile(projectPaths(dir).plan, 'utf8'))
     expect(plan.milestones.at(-1).tasks[0]).toMatchObject({ id: 'fb-1', description: 'Make it blue' })
+  })
+})
+
+describe('verdictNotes', () => {
+  it('takes notes, and issues of a passing verdict (the older contract), skipping blanks', () => {
+    expect(verdictNotes({ pass: true, issues: ['old-style note'], notes: ['a', '  '] })).toEqual(['a', 'old-style note'])
+    expect(verdictNotes({ pass: false, issues: ['defect'], notes: ['n'] })).toEqual(['n'])
   })
 })
